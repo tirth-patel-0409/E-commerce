@@ -38,25 +38,6 @@ public class ProductDao {
         return f;
     }
 
-    //get all products
-    public List<Product> getAllProducts() {
-
-        Session s = this.factory.openSession();
-        Query query = s.createQuery("from Product");
-        List<Product> list = query.list();
-        return list;
-    }
-
-    //get all products of given category
-    public List<Product> getAllProductsById(int cid) {
-
-        Session s = this.factory.openSession();
-        Query query = s.createQuery("from Product as p where p.category.categoryId =: id");
-        query.setParameter("id", cid);
-        List<Product> list = query.list();
-        return list;
-    }
-
     //remove product
     public void removeProduct(int productId) {
         try {
@@ -76,5 +57,43 @@ public class ProductDao {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    //get all products with pagination
+    public List<Product> getAllProducts(int pageNo, int pageSize) {
+        Session session = this.factory.openSession();
+        Query query = session.createQuery("from Product");
+        query.setFirstResult((pageNo - 1) * pageSize);
+        query.setMaxResults(pageSize);
+        List<Product> list = query.list();
+        session.close();
+        return list;
+    }
+
+    //get all products of given category with pagination
+    public List<Product> getAllProductsById(int cid, int pageNo, int pageSize) {
+        Session session = this.factory.openSession();
+        Query query = session.createQuery("from Product as p where p.category.categoryId =: id");
+        query.setParameter("id", cid);
+        query.setFirstResult((pageNo - 1) * pageSize);
+        query.setMaxResults(pageSize);
+        List<Product> list = query.list();
+        session.close();
+        return list;
+    }
+
+    //get total number of pages for pagination
+    public long getTotalPages(String cat, int pageSize) {
+        Session session = this.factory.openSession();
+        Query query;
+        if (cat == null || cat.trim().equals("all")) {
+            query = session.createQuery("select count(*) from Product");
+        } else {
+            query = session.createQuery("select count(*) from Product as p where p.category.categoryId =: id");
+            query.setParameter("id", Integer.parseInt(cat.trim()));
+        }
+        long count = (long) query.uniqueResult();
+        session.close();
+        return (count % pageSize == 0) ? count / pageSize : (count / pageSize) + 1;
     }
 }

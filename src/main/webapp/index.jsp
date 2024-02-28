@@ -27,18 +27,30 @@
         <%
             String cat = request.getParameter("category");
 
+            // Set category to "all" if it's null
+            if (cat == null) {
+                cat = "all";
+            }
+
             //initialize ProductDao to fetch products
             ProductDao dao = new ProductDao(FactoryProvider.getFactory());
 
+            int pageNo = 1;
+            int pageSize = 6;
+
+            if (request.getParameter("page") != null) {
+                pageNo = Integer.parseInt(request.getParameter("page"));
+            }
+
             List<Product> list;
             //check if category is specified or not
-            if (cat == null || cat.trim().equals("all")) {
+            if (cat.equals("all")) {
                 //fetch all products if no category is specified
-                list = dao.getAllProducts();
+                list = dao.getAllProducts(pageNo, pageSize);
             } else {
                 //fetch products by category if category is specified
                 int cid = Integer.parseInt(cat.trim());
-                list = dao.getAllProductsById(cid);
+                list = dao.getAllProductsById(cid, pageNo, pageSize);
             }
 
             //initialize CategoryDao to fetch categories
@@ -50,7 +62,7 @@
         <div class="col-md-2 mb-3">
 
             <div class="list-group">
-                <a href="index.jsp?category=all" class="list-group-item list-group-item-action active"
+                <a href="index.jsp?category=all" class="list-group-item list-group-item-action <%= (cat.equals("all")) ? "active" : "" %>"
                    aria-current="true">
                     All Products
                 </a>
@@ -60,7 +72,7 @@
 
                 %>
                 <a href="index.jsp?category=<%= c.getCategoryId() %>"
-                   class="list-group-item list-group-item-action"><%= c.getCategoryTitle() %>
+                   class="list-group-item list-group-item-action <%= (cat.equals(String.valueOf(c.getCategoryId()))) ? "active" : "" %>"><%= c.getCategoryTitle() %>
                 </a>
 
                 <%
@@ -111,6 +123,42 @@
                 %>
 
             </div>
+
+            <!-- Pagination -->
+            <div class="row">
+                <div class="col-md-12">
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center">
+                            <%-- Previous page link --%>
+                            <% if (pageNo > 1) { %>
+                            <li class="page-item">
+                                <a class="page-link" href="index.jsp?category=<%= cat %>&page=<%= pageNo - 1 %>" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <% } %>
+
+                            <%-- Pagination links --%>
+                            <% for (int i = 1; i <= dao.getTotalPages(cat, pageSize); i++) { %>
+                            <li class="page-item <%= (i == pageNo) ? "active" : "" %>">
+                                <a class="page-link" href="index.jsp?category=<%= cat %>&page=<%= i %>"><%= i %></a>
+                            </li>
+                            <% } %>
+
+                            <%-- Next page link --%>
+                            <% if (pageNo < dao.getTotalPages(cat, pageSize)) { %>
+                            <li class="page-item">
+                                <a class="page-link" href="index.jsp?category=<%= cat %>&page=<%= pageNo + 1 %>" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <% } %>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <!-- End Pagination -->
+
         </div>
     </div>
 </div>

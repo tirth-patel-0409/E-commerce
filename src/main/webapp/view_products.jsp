@@ -14,6 +14,17 @@
     response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
     response.setHeader("Expires", "0"); // Proxies.
 
+    // Pagination parameters
+    int pageSize = 6; // Number of products per page
+    int pageNo = 1; // Default page number
+
+    if (request.getParameter("page") != null) {
+        pageNo = Integer.parseInt(request.getParameter("page"));
+    }
+
+    // Retrieve products for the current page
+    ProductDao dao = new ProductDao(FactoryProvider.getFactory());
+    List<Product> productList = dao.getAllProducts(pageNo, pageSize);
 %>
 
 <!DOCTYPE html>
@@ -44,11 +55,7 @@
         </thead>
         <tbody>
         <%
-            //retrieve all products from the database
-            ProductDao dao = new ProductDao(FactoryProvider.getFactory());
-            List<Product> productList = dao.getAllProducts();
-
-            //display each product in the table
+            // Display each product in the table
             for (Product product : productList) {
         %>
         <tr>
@@ -67,7 +74,8 @@
         </tr>
         <%
             }
-            //display a message if no products are available
+
+            // Display a message if no products are available
             if (productList.isEmpty()) {
         %>
         <tr>
@@ -78,6 +86,38 @@
         %>
         </tbody>
     </table>
+</div>
+
+<!-- Pagination script -->
+<script>
+    function goToPage(page) {
+        window.location.href = 'view_products.jsp?page=' + page;
+    }
+</script>
+
+<div class="container text-center">
+    <ul class="pagination justify-content-center">
+        <%-- Previous Page Button --%>
+        <li class="page-item <%= (pageNo == 1) ? "disabled" : "" %>">
+            <a class="page-link" href="javascript:void(0);" onclick="goToPage(<%= (pageNo - 1) %>)" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+
+        <%-- Page Numbers --%>
+        <% for (int i = 1; i <= dao.getTotalPages(null, pageSize); i++) { %>
+        <li class="page-item <%= (i == pageNo) ? "active" : "" %>">
+            <a class="page-link" href="javascript:void(0);" onclick="goToPage(<%= i %>)"><%= i %></a>
+        </li>
+        <% } %>
+
+        <%-- Next Page Button --%>
+        <li class="page-item <%= (pageNo == dao.getTotalPages(null, pageSize)) ? "disabled" : "" %>">
+            <a class="page-link" href="javascript:void(0);" onclick="goToPage(<%= (pageNo + 1) %>)" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
 </div>
 
 <%@ include file="components/common_modal.jsp" %>
@@ -95,7 +135,7 @@
                 icon: 'success',
                 button: 'Ok',
             }).then(() => {
-                //redirect to login page
+                // Redirect to the view_products.jsp page
                 window.location.href = 'view_products.jsp';
             });
         }
