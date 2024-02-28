@@ -36,7 +36,7 @@ Add new products and categories.
 
 | Home Page | Login Page |
 |---|---|
-| ![Home Page_](https://github.com/tirth-patel-0409/E-commerce/assets/91112968/89d0060a-d400-4747-9a39-546f2d17927a)| ![Login Page](https://github.com/tirth-patel-0409/E-commerce/assets/91112968/bc845411-1ebf-4937-bcad-a9995015a3c1)|
+| ![Home Page](https://github.com/tirth-patel-0409/E-commerce/assets/91112968/4ecaa09e-e848-4fe8-9ca7-dc13c60aca2c)| ![Login Page](https://github.com/tirth-patel-0409/E-commerce/assets/91112968/bc845411-1ebf-4937-bcad-a9995015a3c1)|
 
 | Sign Up Page | Forgot Password |
 |---|---|
